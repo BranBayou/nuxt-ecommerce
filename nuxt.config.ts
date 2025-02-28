@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '20204-11-01',
+  compatibilityDate: '2025-03-01',
 
   future: {
     compatibilityVersion: 4,
@@ -33,5 +33,16 @@ export default defineNuxtConfig({
   },
 
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss']
+  modules: [
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/google-fonts',
+    '@nuxt/icon',
+    '@nuxt/image'
+  ],
+
+  googleFonts: {
+    families: {
+      Montserrat: true,
+    }
+  }
 })
