@@ -4,7 +4,7 @@
 
 <template>
     <div>
-        <h1>Default Layout</h1>
+        <BaseNavigation />
         <slot />
     </div>
 </template>
