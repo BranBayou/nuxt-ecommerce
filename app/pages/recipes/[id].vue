@@ -11,6 +11,7 @@ if (error.value) {
   });
 }
 
+//SEO Data
 useSeoMeta({
   title: data.value?.name,
   description: "Recipes for you to cook!",
