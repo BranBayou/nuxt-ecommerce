@@ -14,6 +14,12 @@
             <NuxtLink to="/">Home</NuxtLink>
           </li>
           <li>
+            <NuxtLink to="/recipe">Recipe</NuxtLink>
+          </li>
+          <li>
+            <NuxtLink to="/community">Community</NuxtLink>
+          </li>
+          <li>
             <NuxtLink to="/about">About</NuxtLink>
           </li>
         </ul>
