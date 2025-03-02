@@ -2,6 +2,10 @@
     // definePageMeta({
     //     layout: 'login',
     // })
+
+    // const {data, error} = await useAsyncData('recipes', () => $fetch('https://dummyjson.com/recipes?limit=24'));
+
+    const {data, error} = await useFetch('https://dummyjson.com/recipes?limit=24');
 </script>
 
 <template>
