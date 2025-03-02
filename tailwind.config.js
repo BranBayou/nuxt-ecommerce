@@ -17,6 +17,7 @@ module.exports = {
           900: "#762911",
           950: "#441204",
         },
+        "dodgeroll-gold": "#F79F1A",
         "apple-green": "#046E1B",
         "dire-wolf": "#292727",
       },
