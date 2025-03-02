@@ -22,6 +22,10 @@ export default defineNuxtConfig({
     }
   },
 
+  image: {
+    domains: ['https://dummyjson.com/recipes']
+  },
+
   features: {
     inlineStyles: true
   },
@@ -44,5 +48,5 @@ export default defineNuxtConfig({
     families: {
       Montserrat: true,
     }
-  }
+  },
 })
