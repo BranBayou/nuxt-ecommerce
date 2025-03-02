@@ -1,7 +1,7 @@
 <script setup>
-    definePageMeta({
-        layout: 'login',
-    })
+    // definePageMeta({
+    //     layout: 'login',
+    // })
 </script>
 
 <template>
