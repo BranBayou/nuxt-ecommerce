@@ -1,4 +1,4 @@
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 import type { NuxtError } from "#app";
 
 const props = defineProps({
@@ -19,4 +19,4 @@ const props = defineProps({
       Go home
     </NuxtLink>
   </section>
-</template> -->
+</template>
