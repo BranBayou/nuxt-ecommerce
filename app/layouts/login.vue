@@ -1,14 +1,15 @@
 <script setup>
-    definePageMeta({
-        layout: 'login',
-    })
+
 </script>
 
 <template>
     <div>
-        <h1>Home page</h1>
+        <h1>Login Layout</h1>
+        <slot />
     </div>
 </template>
+
+
 
 <style scoped>
 
