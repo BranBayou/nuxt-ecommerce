@@ -23,6 +23,14 @@
             <NuxtLink to="/about">About</NuxtLink>
           </li>
         </ul>
+        <!-- <ul>
+            <li>
+              <NuxtImg src="/search.svg" alt="" width="56" densities="x1" format="webp"></NuxtImg>
+            </li>
+            <li>
+              <button class="border-2 border-white px-4 py-2 rounded-md text-white">Register</button>
+            </li>
+        </ul> -->
       </nav>
     </header>
   </template>
