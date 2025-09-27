@@ -3,9 +3,12 @@
 </script>
 
 <template>
-    <div>
+    <div class="min-h-screen flex flex-col">
         <BaseNavigation />
-        <slot />
+        <main class="flex-1">
+            <slot />
+        </main>
+        <BaseFooter />
     </div>
 </template>
 
