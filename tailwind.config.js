@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./index.html", "./src/**/*.{vue,js,ts}"],
+  content: ["./app/**/*.{vue,js,ts}", "./components/**/*.{vue,js,ts}", "./layouts/**/*.{vue,js,ts}", "./pages/**/*.{vue,js,ts}", "./plugins/**/*.{js,ts}", "./nuxt.config.{js,ts}"],
+  plugins: [
+    require('@tailwindcss/line-clamp'),
+  ],
   theme: {
     extend: {
       colors: {
@@ -20,6 +23,30 @@ module.exports = {
         "dodgeroll-gold": "#F79F1A",
         "apple-green": "#046E1B",
         "dire-wolf": "#292727",
+      },
+      animation: {
+        'fade-in-up': 'fadeInUp 0.6s ease-out',
+        'shimmer': 'shimmer 1.5s infinite',
+      },
+      keyframes: {
+        fadeInUp: {
+          'from': {
+            opacity: '0',
+            transform: 'translateY(30px)',
+          },
+          'to': {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+        shimmer: {
+          '0%': {
+            'background-position': '-200px 0',
+          },
+          '100%': {
+            'background-position': 'calc(200px + 100%) 0',
+          },
+        },
       },
     },
     fontFamily: {
