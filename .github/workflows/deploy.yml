@@ -1,0 +1,77 @@
+name: CI / Deploy to GitHub Pages
+
+on:
+  # Every merge (or direct push) to main builds and deploys
+  push:
+    branches: [main]
+  # Pull requests into main are built and checked, never deployed
+  pull_request:
+    branches: [main]
+  # Allow manual re-deploys from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer push cancels an in-progress PR build, but never a running deploy
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Make sure the full-stack (Nitro server) build still compiles
+      - name: Build server version
+        run: npm run build
+
+      - name: Configure GitHub Pages
+        id: pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      # Static SPA for GitHub Pages: no server at runtime, the app talks to DummyJSON from the browser.
+      # base_path is "/<repo>" for project sites ("" for a custom domain or user site);
+      # PR builds skip configure-pages, so they assume the project-site path.
+      - name: Generate static site
+        run: npx nuxi generate
+        env:
+          NUXT_STATIC: 'true'
+          NITRO_PRESET: github_pages
+          NUXT_APP_BASE_URL: ${{ github.event_name == 'pull_request' && format('/{0}', github.event.repository.name) || steps.pages.outputs.base_path }}/
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+
+  deploy:
+    name: Deploy
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const api = useApi()
 const email = ref('')
 const subscribed = ref(false)
 const error = ref('')
@@ -36,7 +37,7 @@ const columns = [
 async function subscribe() {
   error.value = ''
   try {
-    await $fetch('/api/newsletter', { method: 'POST', body: { email: email.value } })
+    await api.subscribe(email.value)
     subscribed.value = true
   } catch (err) {
     error.value = errorMessage(err)

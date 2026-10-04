@@ -1,5 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+// NUXT_STATIC=true builds a fully static SPA for GitHub Pages: there is no Nitro server at runtime,
+// so the app talks to DummyJSON from the browser and keeps sessions/orders in localStorage (see app/utils/staticBackend.ts).
+const staticMode = process.env.NUXT_STATIC === 'true'
+
 export default defineNuxtConfig({
+  ssr: !staticMode,
+
   compatibilityDate: '2025-03-01',
 
   future: {
@@ -35,7 +42,10 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    dummyjsonBase: 'https://dummyjson.com',
+    public: {
+      staticMode,
+      dummyjsonBase: 'https://dummyjson.com',
+    },
   },
 
   nitro: {
@@ -46,6 +56,8 @@ export default defineNuxtConfig({
   },
 
   image: {
+    // IPX needs a server, so static builds load images straight from the DummyJSON CDN
+    provider: staticMode ? 'none' : 'ipx',
     domains: ['cdn.dummyjson.com']
   },
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
-const { data, error } = await useFetch(() => `/api/products/${route.params.id}`, { key: `product-${route.params.id}` })
+const api = useApi()
+const { data, error } = await useAsyncData(`product-${route.params.id}`, () => api.product(String(route.params.id)))
 
 if (error.value) {
   throw createError({ statusCode: error.value.statusCode ?? 404, statusMessage: error.value.statusMessage ?? 'Product not found', fatal: true })

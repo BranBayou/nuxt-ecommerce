@@ -12,10 +12,10 @@ useSeoMeta({
 const year = new Date().getFullYear()
 
 // Hero + "New this week"
-const { data: fresh, status: freshStatus } = await useFetch('/api/products', {
-  query: { new: 'true', limit: 10, sort: 'featured' },
-  key: 'home-new',
-})
+const api = useApi()
+const { data: fresh, status: freshStatus } = await useAsyncData('home-new', () =>
+  api.products({ new: 'true', limit: 10, sort: 'featured' }),
+)
 
 const heroSlides = computed(() =>
   (fresh.value?.products ?? []).filter((p) => p.images.length).map((p) => ({ id: p.id, title: p.title, src: p.images[0]! })),
@@ -41,10 +41,11 @@ const sort = ref<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured')
 const limit = ref(6)
 watch([gender, sort], () => (limit.value = 6))
 
-const { data: collection, status: collectionStatus } = await useFetch('/api/products', {
-  query: { gender, sort, limit },
-  key: 'home-collection',
-})
+const { data: collection, status: collectionStatus } = await useAsyncData(
+  'home-collection',
+  () => api.products({ gender: gender.value, sort: sort.value, limit: limit.value }),
+  { watch: [gender, sort, limit] },
+)
 
 const approachImages = computed(() =>
   (collection.value?.products ?? []).concat(fresh.value?.products ?? []).slice(0, 4).map((p) => p.images.at(-1) ?? p.thumbnail),

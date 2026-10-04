@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // 2. DummyJSON demo accounts (see https://dummyjson.com/users)
-  const { dummyjsonBase } = useRuntimeConfig()
+  const { dummyjsonBase } = useRuntimeConfig().public
   const remote = await $fetch<DummyAuthResponse>(`${dummyjsonBase}/auth/login`, {
     method: 'POST',
     body: { username: identifier, password, expiresInMins: 60 },

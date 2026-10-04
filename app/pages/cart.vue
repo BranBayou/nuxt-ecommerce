@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ProductDetailResponse } from '~~/types/types'
 import { FREE_SHIPPING_THRESHOLD, shippingCost } from '~~/shared/pricing'
 
 useSeoMeta({ title: 'Shopping Bag' })
@@ -10,15 +9,14 @@ const { toggle: toggleWishlist, has } = useWishlist()
 const shipping = computed(() => shippingCost('standard', subtotal.value))
 const agreed = ref(false)
 
-const { data: suggestions } = await useFetch('/api/products', {
-  query: { sort: 'rating', limit: 8 },
-  key: 'cart-suggestions',
+const api = useApi()
+const { data: suggestions } = await useAsyncData('cart-suggestions', () => api.products({ sort: 'rating', limit: 8 }), {
   transform: (r) => r.products,
 })
 
 async function saveForLater(productId: number, size: string) {
   if (!has(productId)) {
-    const { product } = await $fetch<ProductDetailResponse>(`/api/products/${productId}`)
+    const { product } = await api.product(productId)
     toggleWishlist(product)
   }
   remove(productId, size)

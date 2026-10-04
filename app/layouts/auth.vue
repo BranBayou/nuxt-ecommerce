@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // Editorial image panel for login/register, pulled from the live catalog
-const { data } = await useFetch('/api/products', {
-  query: { category: 'mens-shirts,womens-dresses', limit: 2 },
-  key: 'auth-hero',
+const api = useApi()
+const { data } = await useAsyncData('auth-hero', () => api.products({ category: 'mens-shirts,womens-dresses', limit: 2 }), {
   transform: (r) => r.products.map((p) => p.images[0] ?? p.thumbnail),
 })
 </script>
