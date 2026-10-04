@@ -1,19 +1,10 @@
-<script setup>
-
-</script>
-
 <template>
-    <div class="min-h-screen flex flex-col">
-        <BaseNavigation />
-        <main class="flex-1">
-            <slot />
-        </main>
-        <BaseFooter />
-    </div>
+  <div class="min-h-screen flex flex-col">
+    <BaseNavigation />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <BaseFooter />
+    <CartDrawer />
+  </div>
 </template>
-
-
-
-<style lang="scss" scoped>
-
-</style>

@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans;
+    /* the subtle paper grain from the design */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    @apply bg-ink text-white;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #000 transparent;
+  }
+}
+
+@layer components {
+  /* Wide, heavy uppercase headline ("NEW COLLECTION") */
+  .display {
+    font-stretch: 125%;
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    @apply text-xs uppercase tracking-label text-muted;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-3 h-12 px-6 text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-ink text-white hover:bg-ink-soft;
+  }
+
+  .btn-ghost {
+    @apply btn bg-field text-ink hover:bg-[#cdcdcd];
+  }
+
+  .btn-outline {
+    @apply btn border border-ink text-ink hover:bg-ink hover:text-white;
+  }
+
+  .icon-btn {
+    @apply inline-flex items-center justify-center w-11 h-11 rounded-full bg-ink text-white hover:bg-ink-soft transition-colors;
+  }
+
+  .input {
+    @apply w-full h-12 px-4 bg-white/70 border border-line text-sm placeholder:text-muted/70 focus:outline-none focus:border-ink focus:bg-white transition-colors;
+  }
+
+  .label {
+    @apply block text-xs uppercase tracking-label text-muted mb-2;
+  }
+
+  .chip {
+    @apply inline-flex items-center justify-center min-w-[2.75rem] h-10 px-3 border border-line text-xs uppercase tracking-label bg-white/60 hover:border-ink transition-colors;
+  }
+
+  .chip-active {
+    @apply bg-ink text-white border-ink;
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, #e4e4e4 25%, #d8d8d8 50%, #e4e4e4 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
