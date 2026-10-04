@@ -31,10 +31,12 @@ const toggleInList = (key: string, value: string) => {
   setQuery({ [key]: list.includes(value) ? list.filter((v) => v !== value) : [...list, value] })
 }
 
-const { data, status, error, refresh } = await useFetch('/api/products', {
-  query: computed(() => ({ ...route.query, limit: 12 })),
-  key: 'products-list',
-})
+const api = useApi()
+const { data, status, error, refresh } = await useAsyncData(
+  'products-list',
+  () => api.products({ ...route.query, limit: 12 }),
+  { watch: [() => route.query] },
+)
 
 const title = computed(() => {
   if (qs('new')) return 'New Arrivals'

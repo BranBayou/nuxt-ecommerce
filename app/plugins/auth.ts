@@ -1,9 +1,10 @@
-import type { User } from '~~/types/types'
-
-// Resolve the session on the server render so pages and middleware know who is signed in
+// Resolve the session before the first render so pages and middleware know who is signed in.
+// Server build: once during SSR (the state is then hydrated). Static build: in the browser, from localStorage.
 export default defineNuxtPlugin(async () => {
-  if (import.meta.client) return
+  const { staticMode } = useRuntimeConfig().public
+  if (import.meta.client && !staticMode) return
+
   const { user } = useAuth()
-  const res = await useRequestFetch()<{ user: User | null }>('/api/auth/me').catch(() => null)
+  const res = await useApi().me().catch(() => null)
   user.value = res?.user ?? null
 })

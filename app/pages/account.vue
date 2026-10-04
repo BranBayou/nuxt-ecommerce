@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Order } from '~~/types/types'
 
 definePageMeta({ middleware: 'auth' })
 useSeoMeta({ title: 'My Account', robots: 'noindex' })
 
 const { user, logout } = useAuth()
 const { items: wishlist } = useWishlist()
-const { data, status } = await useFetch<{ orders: Order[] }>('/api/orders', { key: 'my-orders' })
+const api = useApi()
+const { data, status } = await useAsyncData('my-orders', () => api.orders())
 
 const orders = computed(() => data.value?.orders ?? [])
 const totalSpent = computed(() => orders.value.reduce((s, o) => s + o.total, 0))

@@ -4,7 +4,8 @@ useSeoMeta({
   description: 'Shop by collection — men, women and unisex shirts, dresses, shoes, bags, watches and accessories.',
 })
 
-const { data: groups, status } = await useFetch('/api/categories', { key: 'categories' })
+const api = useApi()
+const { data: groups, status } = await useAsyncData('categories', () => api.categories())
 </script>
 
 <template>

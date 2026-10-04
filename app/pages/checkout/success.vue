@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { Order } from '~~/types/types'
 import { SHIPPING_OPTIONS } from '~~/shared/pricing'
 
 useSeoMeta({ title: 'Order Confirmed', robots: 'noindex' })
 
 const route = useRoute()
 const { loggedIn } = useAuth()
-const { data, error } = await useFetch<{ order: Order }>(() => `/api/orders/${route.query.order}`, { key: `order-${route.query.order}` })
+const api = useApi()
+const { data, error } = await useAsyncData(`order-${route.query.order}`, () => api.order(String(route.query.order ?? '')))
 const order = computed(() => data.value?.order)
 </script>
 

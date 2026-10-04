@@ -42,6 +42,37 @@ For example, use username `emilys` with password `emilyspass` (the login page ha
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm run build      # production build
+npm run build      # production build (Node server)
 npm run preview    # preview the production build
+```
+
+## Deployment (GitHub Pages)
+
+`.github/workflows/deploy.yml` runs on GitHub Actions:
+
+| Event | What happens |
+| --- | --- |
+| Pull request → `main` | Installs, builds the server version, and generates the static site (no deploy) |
+| Push / merge to `main` | Same checks, then deploys `.output/public` to GitHub Pages |
+| Manual (`workflow_dispatch`) | Re-deploys `main` |
+
+One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+The site is published at `https://<user>.github.io/<repo>/`.
+
+### Static mode
+
+GitHub Pages can't run a server, so the Pages build sets `NUXT_STATIC=true`. That produces a client-side SPA
+(`ssr: false`, with `404.html` as the deep-link fallback). All data access goes through `useApi()`:
+
+- **Server build** — calls the Nitro `/api` routes (sessions in httpOnly cookies, data in `.data/db`).
+- **Static build** — `app/utils/staticBackend.ts` runs the same shared catalog and order code (`shared/`) in the browser.
+  It calls DummyJSON directly. Accounts, sessions and orders are stored in that browser's `localStorage`.
+
+That makes the static deployment **demo-grade**: accounts and orders exist only in the visitor's own browser.
+For real accounts and orders, deploy the server build to a Node host (Vercel, Netlify, Render and so on).
+
+To build the Pages version locally (PowerShell):
+
+```powershell
+$env:NUXT_STATIC='true'; $env:NUXT_APP_BASE_URL='/nuxt-ecommerce/'; $env:NITRO_PRESET='github_pages'; npx nuxi generate
 ```

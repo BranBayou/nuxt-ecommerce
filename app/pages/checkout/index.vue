@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import type { Order, PaymentMethod, ShippingMethod } from '~~/types/types'
+import type { PaymentMethod, ShippingMethod } from '~~/types/types'
 import { SHIPPING_OPTIONS, shippingCost } from '~~/shared/pricing'
 
 useSeoMeta({ title: 'Checkout', robots: 'noindex' })
 
+const api = useApi()
 const { items, subtotal, clear } = useCart()
 const { user } = useAuth()
 
@@ -40,23 +41,20 @@ async function placeOrder() {
   submitting.value = true
   error.value = ''
   try {
-    const { order } = await $fetch<{ order: Order }>('/api/orders', {
-      method: 'POST',
-      body: {
-        items: items.value.map(({ productId, size, quantity }) => ({ productId, size, quantity })),
-        contact: { email: form.email, phone: form.phone },
-        shippingAddress: {
-          firstName: form.firstName,
-          lastName: form.lastName,
-          country: form.country,
-          region: form.region,
-          address: form.address,
-          city: form.city,
-          postalCode: form.postalCode,
-        },
-        shippingMethod: form.shippingMethod,
-        paymentMethod: form.paymentMethod,
+    const { order } = await api.createOrder({
+      items: items.value.map(({ productId, size, quantity }) => ({ productId, size, quantity })),
+      contact: { email: form.email, phone: form.phone },
+      shippingAddress: {
+        firstName: form.firstName,
+        lastName: form.lastName,
+        country: form.country,
+        region: form.region,
+        address: form.address,
+        city: form.city,
+        postalCode: form.postalCode,
       },
+      shippingMethod: form.shippingMethod,
+      paymentMethod: form.paymentMethod,
     })
     clear()
     await navigateTo({ path: '/checkout/success', query: { order: order.id } })
