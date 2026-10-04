@@ -1,218 +1,208 @@
 <script setup lang="ts">
-import  { type RecipeResponse } from "../../types/types";
-    // definePageMeta({
-    //     layout: 'login',
-    // })
+import type { Gender } from '~~/types/types'
 
-    // const {data, error} = await useAsyncData('recipes', () => $fetch('https://dummyjson.com/recipes?limit=24'));
-
-    const {data, error} = await useFetch<RecipeResponse>('https://dummyjson.com/recipes?limit=24');
-
-//SEO Data
 useSeoMeta({
-  title: "Nuxtcipes",
-  description: "Recipes for you to cook!",
-  ogTitle: "Nuxtcipes",
-  ogDescription: "Recipes for you to cook!",
-  ogImage: "/nuxt-course-hero.png",
-  ogUrl: `http:localhost:3000`,
-  twitterTitle: "Nuxtcipes",
-  twitterDescription: "Recipes for you to cook!",
-  twitterImage: "nuxt-course-hero.png",
-  twitterCard: "summary",
-});
+  title: 'New Collection',
+  description: 'Shop the new collection — shirts, dresses, shoes, bags and accessories for men and women.',
+  ogTitle: 'NUXTWEAR — New Collection',
+  ogDescription: 'Shop the new collection — shirts, dresses, shoes, bags and accessories.',
+  twitterCard: 'summary_large_image',
+})
+
+const year = new Date().getFullYear()
+
+// Hero + "New this week"
+const { data: fresh, status: freshStatus } = await useFetch('/api/products', {
+  query: { new: 'true', limit: 10, sort: 'featured' },
+  key: 'home-new',
+})
+
+const heroSlides = computed(() =>
+  (fresh.value?.products ?? []).filter((p) => p.images.length).map((p) => ({ id: p.id, title: p.title, src: p.images[0]! })),
+)
+const slide = ref(0)
+const visibleSlides = computed(() => {
+  const s = heroSlides.value
+  return s.length ? [s[slide.value % s.length]!, s[(slide.value + 1) % s.length]!] : []
+})
+const step = (d: number) => {
+  const n = heroSlides.value.length
+  if (n) slide.value = (slide.value + d + n) % n
+}
+
+// Collections grid with gender tabs and "More"
+const tabs: { label: string; value: Gender | '' }[] = [
+  { label: 'All', value: '' },
+  { label: 'Men', value: 'men' },
+  { label: 'Women', value: 'women' },
+]
+const gender = ref<Gender | ''>('')
+const sort = ref<'featured' | 'price-asc' | 'price-desc' | 'rating'>('featured')
+const limit = ref(6)
+watch([gender, sort], () => (limit.value = 6))
+
+const { data: collection, status: collectionStatus } = await useFetch('/api/products', {
+  query: { gender, sort, limit },
+  key: 'home-collection',
+})
+
+const approachImages = computed(() =>
+  (collection.value?.products ?? []).concat(fresh.value?.products ?? []).slice(0, 4).map((p) => p.images.at(-1) ?? p.thumbnail),
+)
+
+const perks = [
+  { icon: 'lucide:truck', title: 'Free shipping', text: 'On standard orders over $150' },
+  { icon: 'lucide:refresh-ccw', title: '30-day returns', text: 'Easy, no-questions returns' },
+  { icon: 'lucide:shield-check', title: 'Secure checkout', text: 'Your data stays protected' },
+]
 </script>
 
 <template>
-  <main>
-    <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-dodgeroll-gold via-dodgeroll-gold-500 to-dodgeroll-gold-600 overflow-hidden">
-      <!-- Background Pattern -->
-      <div class="absolute inset-0 opacity-10">
-        <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent"></div>
-      </div>
-      
-      <div class="container relative py-20 lg:py-32">
-        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          <!-- Content -->
-          <div class="flex-1 text-center lg:text-left text-white">
-            <div class="mb-6">
-              <span class="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-4">
-                🍳 New recipes added daily
-              </span>
-            </div>
-            
-            <h1 class="text-4xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight">
-              Master the Kitchen with 
-              <span class="text-yellow-200">Ease</span>
-            </h1>
-            
-            <p class="text-xl lg:text-2xl mb-8 text-white/90 leading-relaxed max-w-2xl">
-              Discover amazing recipes, cooking tips, and culinary inspiration. 
-              From beginner-friendly meals to gourmet masterpieces.
-            </p>
-            
-            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <NuxtLink 
-                to="/recipes"
-                class="group px-8 py-4 bg-white text-dodgeroll-gold rounded-xl text-lg font-bold hover:bg-yellow-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-              >
-                <Icon name="mdi:chef-hat" size="24" />
-                Browse Recipes
-                <Icon name="mdi:arrow-right" size="20" class="group-hover:translate-x-1 transition-transform" />
-              </NuxtLink>
-              
-              <button class="px-8 py-4 border-2 border-white text-white rounded-xl text-lg font-bold hover:bg-white hover:text-dodgeroll-gold transition-all duration-300 flex items-center justify-center gap-2">
-                <Icon name="mdi:play-circle" size="24" />
-                Watch Demo
+  <div>
+    <!-- Hero -->
+    <section class="container pt-6 pb-20">
+      <div class="grid lg:grid-cols-[minmax(0,26rem)_1fr] gap-10 lg:gap-16">
+        <div class="flex flex-col">
+          <ul class="text-sm uppercase leading-relaxed">
+            <li><NuxtLink to="/products?gender=men" class="hover:opacity-60">Men</NuxtLink></li>
+            <li><NuxtLink to="/products?gender=women" class="hover:opacity-60">Women</NuxtLink></li>
+            <li><NuxtLink to="/products?category=sunglasses,womens-bags,mens-watches,womens-watches,womens-jewellery" class="hover:opacity-60">Accessories</NuxtLink></li>
+          </ul>
+          <SearchField class="mt-4" />
+
+          <div class="mt-16 lg:mt-auto">
+            <h1 class="display text-[2.5rem] sm:text-5xl">New<br />Collection</h1>
+            <p class="mt-4 text-base leading-snug">Fall / Winter<br />{{ year }}</p>
+          </div>
+
+          <div class="mt-10 flex items-center gap-6">
+            <NuxtLink to="/products?new=true" class="btn-ghost flex-1 justify-between max-w-[13rem]">
+              Go To Shop
+              <svg width="40" height="10" viewBox="0 0 40 10" fill="none" aria-hidden="true"><path d="M0 5h38m0 0-4-4m4 4-4 4" stroke="currentColor" /></svg>
+            </NuxtLink>
+            <div class="flex gap-2">
+              <button class="grid place-items-center w-10 h-10 border border-line bg-white/60 hover:border-ink" aria-label="Previous slide" @click="step(-1)">
+                <Icon name="lucide:chevron-left" size="18" />
+              </button>
+              <button class="grid place-items-center w-10 h-10 border border-line bg-white/60 hover:border-ink" aria-label="Next slide" @click="step(1)">
+                <Icon name="lucide:chevron-right" size="18" />
               </button>
             </div>
-
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-white/20">
-              <div class="text-center lg:text-left">
-                <div class="text-3xl font-bold text-yellow-200">1000+</div>
-                <div class="text-white/80">Recipes</div>
-              </div>
-              <div class="text-center lg:text-left">
-                <div class="text-3xl font-bold text-yellow-200">50+</div>
-                <div class="text-white/80">Cuisines</div>
-              </div>
-              <div class="text-center lg:text-left">
-                <div class="text-3xl font-bold text-yellow-200">10K+</div>
-                <div class="text-white/80">Happy Cooks</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Hero Image -->
-          <div class="flex-1 relative">
-            <div class="relative">
-              <NuxtImg 
-                sizes="xs:100vw sm:667px lg:600px" 
-                src="/nuxt-course-hero.png" 
-                format="webp" 
-                densities="x1" 
-                alt="Cooking ingredients and utensils" 
-                class="w-full max-w-lg mx-auto lg:mx-0 rounded-2xl shadow-2xl transform hover:scale-105 transition-transform duration-500"
-              />
-              
-              <!-- Floating Elements -->
-              <div class="absolute -top-4 -left-4 w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-bounce">
-                <Icon name="mdi:star" size="32" class="text-yellow-200" />
-              </div>
-              <div class="absolute -bottom-4 -right-4 w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center animate-pulse">
-                <Icon name="mdi:heart" size="24" class="text-red-300" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Featured Recipes Section -->
-    <section class="py-20 bg-gray-50">
-      <div class="container">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Featured Recipes
-          </h2>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover our most popular and highly-rated recipes from around the world
-          </p>
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="pending" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          <RecipeCardSkeleton v-for="n in 8" :key="n" />
-        </div>
-
-        <!-- Error State -->
-        <div v-else-if="error" class="text-center py-20">
-          <Icon name="mdi:alert-circle" size="64" class="text-red-500 mx-auto mb-4" />
-          <h3 class="text-2xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h3>
-          <p class="text-gray-600 mb-6">We couldn't load the recipes. Please try again later.</p>
-          <button 
-            @click="refresh()"
-            class="px-6 py-3 bg-dodgeroll-gold text-white rounded-lg hover:bg-dodgeroll-gold-600 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-
-        <!-- Recipes Grid -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          <div 
-            v-for="(recipe, index) in data?.recipes?.slice(0, 8)" 
-            :key="recipe.id"
-            class="transform hover:scale-105 transition-all duration-300"
-            :style="{ animationDelay: `${index * 100}ms` }"
-          >
-            <RecipeCard :recipe="recipe" />
           </div>
         </div>
 
-        <!-- View All Button -->
-        <div v-if="!pending && !error" class="text-center mt-12">
-          <NuxtLink 
-            to="/recipes"
-            class="inline-flex items-center gap-2 px-8 py-4 bg-dodgeroll-gold text-white rounded-xl font-semibold hover:bg-dodgeroll-gold-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+        <div class="grid grid-cols-2 gap-4 sm:gap-6 lg:pt-24">
+          <template v-if="freshStatus === 'pending' && !visibleSlides.length">
+            <div v-for="n in 2" :key="n" class="aspect-[4/5] shimmer" />
+          </template>
+          <NuxtLink
+            v-for="s in visibleSlides"
+            v-else
+            :key="s.id + '-' + slide"
+            :to="`/products/${s.id}`"
+            class="group relative aspect-[4/5] bg-white border border-line overflow-hidden animate-fade-in-up"
           >
-            View All Recipes
-            <Icon name="mdi:arrow-right" size="20" />
+            <NuxtImg :src="s.src" :alt="s.title" sizes="50vw lg:35vw" class="absolute inset-0 w-full h-full object-contain p-6 transition-transform duration-700 group-hover:scale-105" />
+            <span class="absolute left-4 bottom-4 text-xs bg-white/90 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">{{ s.title }}</span>
           </NuxtLink>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="py-20 bg-white">
-      <div class="container">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Why Choose Nuxtcipes?
-          </h2>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Everything you need to become a better cook, all in one place
-          </p>
+    <!-- New this week -->
+    <section class="container py-16">
+      <div class="flex items-end justify-between mb-10">
+        <h2 class="display text-4xl sm:text-5xl">
+          New<br />This Week <sup class="text-accent text-lg font-medium align-super tracking-normal">({{ fresh?.total ?? 0 }})</sup>
+        </h2>
+        <NuxtLink to="/products?new=true" class="text-sm text-muted hover:text-ink">See All</NuxtLink>
+      </div>
+      <ProductRail :products="fresh?.products ?? []" :loading="freshStatus === 'pending' && !fresh" />
+    </section>
+
+    <!-- Collections -->
+    <section class="container py-16">
+      <h2 class="display text-4xl sm:text-5xl">Nuxtwear<br />Collections<br />{{ String(year).slice(2) }}–{{ String(year + 1).slice(2) }}</h2>
+
+      <div class="mt-10 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex gap-6 text-sm" role="tablist">
+          <button
+            v-for="t in tabs"
+            :key="t.label"
+            role="tab"
+            :aria-selected="gender === t.value"
+            class="transition-colors"
+            :class="gender === t.value ? 'font-semibold' : 'text-muted hover:text-ink'"
+            @click="gender = t.value"
+          >
+            <template v-if="gender === t.value">({{ t.label }})</template>
+            <template v-else>{{ t.label }}</template>
+          </button>
         </div>
+        <label class="flex items-center gap-2 text-sm text-muted">
+          Sort
+          <select v-model="sort" class="bg-transparent text-ink focus:outline-none cursor-pointer">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+            <option value="rating">Top rated</option>
+          </select>
+        </label>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div class="text-center p-8 rounded-2xl hover:shadow-lg transition-shadow duration-300">
-            <div class="w-16 h-16 bg-dodgeroll-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="mdi:chef-hat" size="32" class="text-dodgeroll-gold" />
-            </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Expert Recipes</h3>
-            <p class="text-gray-600 leading-relaxed">
-              Curated recipes from professional chefs and home cooks, tested and perfected for the best results.
-            </p>
-          </div>
+      <div class="mt-8 grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-10">
+        <template v-if="collectionStatus === 'pending' && !collection">
+          <ProductCardSkeleton v-for="n in 6" :key="n" />
+        </template>
+        <ProductCard v-for="p in collection?.products" v-else :key="p.id" :product="p" class="animate-fade-in-up" />
+      </div>
 
-          <div class="text-center p-8 rounded-2xl hover:shadow-lg transition-shadow duration-300">
-            <div class="w-16 h-16 bg-dodgeroll-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="mdi:clock-fast" size="32" class="text-dodgeroll-gold" />
-            </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Quick & Easy</h3>
-            <p class="text-gray-600 leading-relaxed">
-              Find recipes that fit your schedule, from 15-minute meals to weekend cooking projects.
-            </p>
-          </div>
+      <div class="mt-12 flex justify-center">
+        <button
+          v-if="collection && collection.total > limit"
+          class="flex flex-col items-center gap-2 text-sm text-muted hover:text-ink transition-colors disabled:opacity-50"
+          :disabled="collectionStatus === 'pending'"
+          @click="limit += 6"
+        >
+          More
+          <Icon :name="collectionStatus === 'pending' ? 'lucide:loader-circle' : 'lucide:chevron-down'" size="18" :class="{ 'animate-spin': collectionStatus === 'pending' }" />
+        </button>
+        <NuxtLink v-else to="/products" class="btn-outline">View all products</NuxtLink>
+      </div>
+    </section>
 
-          <div class="text-center p-8 rounded-2xl hover:shadow-lg transition-shadow duration-300">
-            <div class="w-16 h-16 bg-dodgeroll-gold/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icon name="mdi:account-group" size="32" class="text-dodgeroll-gold" />
-            </div>
-            <h3 class="text-2xl font-bold text-gray-900 mb-4">Community Driven</h3>
-            <p class="text-gray-600 leading-relaxed">
-              Join a community of food lovers, share your creations, and get inspired by others.
-            </p>
+    <!-- Approach -->
+    <section class="container py-20">
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="display text-4xl sm:text-5xl">Our Approach<br />to Fashion Design</h2>
+        <p class="mt-6 text-sm sm:text-base text-muted leading-relaxed">
+          At Nuxtwear we blend creativity with craftsmanship to create pieces that transcend trends and time.
+          Each design is meticulously made, keeping the highest quality and a considered, timeless look.
+        </p>
+      </div>
+      <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div
+          v-for="(src, i) in approachImages"
+          :key="src"
+          class="aspect-[3/4] bg-white border border-line overflow-hidden"
+          :class="i % 2 === 1 ? 'md:mt-16' : ''"
+        >
+          <NuxtImg :src="src" alt="" loading="lazy" sizes="50vw md:25vw" class="w-full h-full object-contain p-6 hover:scale-105 transition-transform duration-700" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Perks -->
+    <section class="container">
+      <div class="grid sm:grid-cols-3 border border-line divide-y sm:divide-y-0 sm:divide-x divide-line bg-white/40">
+        <div v-for="perk in perks" :key="perk.title" class="flex items-center gap-4 p-6">
+          <Icon :name="perk.icon" size="24" />
+          <div>
+            <p class="text-sm font-semibold">{{ perk.title }}</p>
+            <p class="text-xs text-muted">{{ perk.text }}</p>
           </div>
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </template>
-
-<style scoped>
-
-</style>

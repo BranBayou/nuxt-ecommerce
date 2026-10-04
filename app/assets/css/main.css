@@ -1,97 +1,82 @@
-/* Custom scrollbar styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #f79f1a;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #d65f09;
-}
-
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #f79f1a #f1f1f1;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom focus styles */
-.focus-ring:focus {
-  outline: 2px solid #f79f1a;
-  outline-offset: 2px;
-}
-
-/* Custom animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  body {
+    @apply bg-paper text-ink font-sans;
+    /* the subtle paper grain from the design */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection {
+    @apply bg-ink text-white;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #000 transparent;
   }
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
-}
-
-/* Custom button hover effects */
-.btn-hover-lift {
-  transition: all 0.3s ease;
-}
-
-.btn-hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* Custom card hover effects */
-.card-hover {
-  transition: all 0.3s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-}
-
-/* Loading animation */
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
+@layer components {
+  /* Wide, heavy uppercase headline ("NEW COLLECTION") */
+  .display {
+    font-stretch: 125%;
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
   }
-  100% {
-    background-position: calc(200px + 100%) 0;
+
+  .eyebrow {
+    @apply text-xs uppercase tracking-label text-muted;
   }
-}
 
-.shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200px 100%;
-  animation: shimmer 1.5s infinite;
-}
+  .btn {
+    @apply inline-flex items-center justify-center gap-3 h-12 px-6 text-sm font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
 
-/* Custom text selection */
-::selection {
-  background-color: #f79f1a;
-  color: white;
-}
+  .btn-primary {
+    @apply btn bg-ink text-white hover:bg-ink-soft;
+  }
 
-::-moz-selection {
-  background-color: #f79f1a;
-  color: white;
+  .btn-ghost {
+    @apply btn bg-field text-ink hover:bg-[#cdcdcd];
+  }
+
+  .btn-outline {
+    @apply btn border border-ink text-ink hover:bg-ink hover:text-white;
+  }
+
+  .icon-btn {
+    @apply inline-flex items-center justify-center w-11 h-11 rounded-full bg-ink text-white hover:bg-ink-soft transition-colors;
+  }
+
+  .input {
+    @apply w-full h-12 px-4 bg-white/70 border border-line text-sm placeholder:text-muted/70 focus:outline-none focus:border-ink focus:bg-white transition-colors;
+  }
+
+  .label {
+    @apply block text-xs uppercase tracking-label text-muted mb-2;
+  }
+
+  .chip {
+    @apply inline-flex items-center justify-center min-w-[2.75rem] h-10 px-3 border border-line text-xs uppercase tracking-label bg-white/60 hover:border-ink transition-colors;
+  }
+
+  .chip-active {
+    @apply bg-ink text-white border-ink;
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, #e4e4e4 25%, #d8d8d8 50%, #e4e4e4 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
 }

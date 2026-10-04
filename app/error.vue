@@ -1,59 +1,27 @@
+<script setup lang="ts">
+import type { NuxtError } from '#app'
+
+const props = defineProps<{ error: NuxtError }>()
+const is404 = computed(() => props.error.statusCode === 404)
+
+useHead({ title: is404.value ? 'Page not found' : 'Something went wrong' })
+
+const goHome = () => clearError({ redirect: '/' })
+const goShop = () => clearError({ redirect: '/products' })
+</script>
+
 <template>
-  <div class="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div class="max-w-md w-full text-center">
-      <!-- Error Icon -->
-      <div class="mb-8">
-        <Icon name="mdi:chef-hat" size="120" class="text-dodgeroll-gold mx-auto mb-4" />
-        <h1 class="text-6xl font-bold text-gray-900 mb-2">404</h1>
-        <h2 class="text-2xl font-semibold text-gray-700 mb-4">Recipe Not Found</h2>
-        <p class="text-gray-600 mb-8">
-          Oops! It looks like this recipe has been moved or doesn't exist. 
-          Don't worry, we have plenty of other delicious recipes waiting for you!
-        </p>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="space-y-4">
-        <NuxtLink 
-          to="/"
-          class="inline-block w-full px-8 py-4 bg-dodgeroll-gold text-white rounded-lg font-semibold hover:bg-dodgeroll-gold-600 transition-colors duration-200"
-        >
-          Go Home
-        </NuxtLink>
-        <NuxtLink 
-          to="/recipes"
-          class="inline-block w-full px-8 py-4 border-2 border-dodgeroll-gold text-dodgeroll-gold rounded-lg font-semibold hover:bg-dodgeroll-gold hover:text-white transition-colors duration-200"
-        >
-          Browse Recipes
-        </NuxtLink>
-      </div>
-
-      <!-- Search Suggestion -->
-      <div class="mt-12 p-6 bg-white rounded-lg shadow-sm">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Looking for something specific?</h3>
-        <div class="flex gap-2">
-          <input 
-            type="text" 
-            placeholder="Search recipes..."
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-dodgeroll-gold"
-          />
-          <button class="px-6 py-2 bg-dodgeroll-gold text-white rounded-lg hover:bg-dodgeroll-gold-600 transition-colors">
-            Search
-          </button>
-        </div>
+  <NuxtLayout>
+    <div class="container min-h-[70vh] flex flex-col items-center justify-center text-center py-20">
+      <p class="display text-[28vw] sm:text-[12rem] leading-none text-ink/10 select-none">{{ error.statusCode }}</p>
+      <h1 class="display text-4xl sm:text-5xl -mt-8 sm:-mt-16">{{ is404 ? 'Page not found' : 'Something went wrong' }}</h1>
+      <p class="mt-4 max-w-md text-sm text-muted">
+        {{ is404 ? "The page or product you're looking for has moved or no longer exists." : error.statusMessage || 'Please try again in a moment.' }}
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <button class="btn-primary" @click="goShop">Shop new arrivals</button>
+        <button class="btn-outline" @click="goHome">Back to home</button>
       </div>
     </div>
-  </div>
+  </NuxtLayout>
 </template>
-
-<script setup>
-// Set the error status code
-const props = defineProps({
-  error: Object
-})
-
-// Set the page title
-useHead({
-  title: '404 - Recipe Not Found | Nuxtcipes'
-})
-</script>

@@ -1,156 +1,147 @@
-<script setup>
+<script setup lang="ts">
+const route = useRoute()
+const { count, isOpen: cartOpen } = useCart()
+const { items: wishlist } = useWishlist()
+const { loggedIn, user } = useAuth()
 
+const menuOpen = ref(false)
+watch(() => route.fullPath, () => (menuOpen.value = false))
+
+const links = [
+  { label: 'Home', to: '/' },
+  { label: 'Collections', to: '/collections' },
+  { label: 'New', to: '/products?new=true' },
+]
+
+const isActive = (to: string) => {
+  const [path, qs] = to.split('?')
+  if (path === '/') return route.path === '/'
+  if (qs) return route.path === path && route.query.new === 'true'
+  return route.path.startsWith(path!)
+}
+
+const menuGroups = [
+  {
+    title: 'Shop',
+    links: [
+      { label: 'Men', to: '/products?gender=men' },
+      { label: 'Women', to: '/products?gender=women' },
+      { label: 'New Arrivals', to: '/products?new=true' },
+      { label: 'Sale', to: '/products?sale=true' },
+      { label: 'All Products', to: '/products' },
+    ],
+  },
+  {
+    title: 'Discover',
+    links: [
+      { label: 'Collections', to: '/collections' },
+      { label: 'About Us', to: '/about' },
+      { label: 'Wishlist', to: '/wishlist' },
+    ],
+  },
+]
 </script>
 
 <template>
-  <header class="py-4 border-b bg-white shadow-sm sticky top-0 z-40">
-    <nav class="container flex items-center justify-between">
-      <!-- Logo -->
-      <NuxtLink to="/" class="flex gap-2 items-center hover:opacity-80 transition-opacity">
-        <NuxtImg width="48" densities="x1" format="webp" src="/icon-green.png" alt="Nuxtcipes Logo" />
-        <span class="text-2xl lg:text-3xl font-bold text-dire-wolf">Nuxtcipes</span>
+  <header class="sticky top-0 z-40 bg-paper/85 backdrop-blur-md">
+    <nav class="container grid grid-cols-[1fr_auto_1fr] items-center h-20" aria-label="Main">
+      <!-- Left: menu + links -->
+      <div class="flex items-center gap-8">
+        <button
+          class="p-2 -ml-2 hover:opacity-70 transition-opacity"
+          :aria-expanded="menuOpen"
+          aria-label="Open menu"
+          @click="menuOpen = true"
+        >
+          <Icon name="lucide:align-left" size="24" />
+        </button>
+        <ul class="hidden md:flex items-center gap-8 text-sm">
+          <li v-for="link in links" :key="link.to">
+            <NuxtLink
+              :to="link.to"
+              class="relative py-1 hover:opacity-70 transition-opacity after:absolute after:left-0 after:-bottom-0.5 after:h-px after:bg-ink after:transition-all"
+              :class="isActive(link.to) ? 'after:w-full' : 'after:w-0'"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Center: logo -->
+      <NuxtLink to="/" aria-label="Nuxtwear home" class="hover:opacity-80 transition-opacity">
+        <AppLogo :size="36" />
       </NuxtLink>
 
-      <!-- Desktop Navigation -->
-      <div class="hidden lg:flex items-center gap-8">
-        <!-- Search Bar -->
-        <div class="w-80">
-          <RecipeSearch />
-        </div>
-        
-        <!-- Navigation Links -->
-        <ul class="flex gap-6 text-lg font-medium">
-          <li>
-            <NuxtLink 
-              to="/" 
-              class="text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path === '/' }"
-            >
-              Home
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink 
-              to="/recipes" 
-              class="text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path.startsWith('/recipes') }"
-            >
-              Recipes
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink 
-              to="/community" 
-              class="text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path === '/community' }"
-            >
-              Community
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink 
-              to="/about" 
-              class="text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path === '/about' }"
-            >
-              About
-            </NuxtLink>
-          </li>
-        </ul>
-      </div>
+      <!-- Right: wishlist, cart pill, account -->
+      <div class="flex items-center justify-end gap-2 sm:gap-3">
+        <NuxtLink to="/wishlist" class="icon-btn relative hidden sm:inline-flex" aria-label="Wishlist">
+          <Icon name="lucide:heart" size="18" />
+          <span v-if="wishlist.length" class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-white text-ink border border-ink text-[10px] font-semibold grid place-items-center">
+            {{ wishlist.length }}
+          </span>
+        </NuxtLink>
 
-      <!-- Mobile Menu Button -->
-      <button 
-        @click="toggleMobileMenu"
-        class="lg:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
-        :class="{ 'bg-gray-100': isMobileMenuOpen }"
-      >
-        <Icon 
-          :name="isMobileMenuOpen ? 'mdi:close' : 'mdi:menu'" 
-          size="24" 
-          class="text-gray-700"
-        />
-      </button>
+        <button class="flex items-center group" aria-label="Open shopping bag" @click="cartOpen = true">
+          <span class="hidden sm:flex items-center h-11 pl-6 pr-4 -mr-2 rounded-full bg-ink text-white text-sm group-hover:bg-ink-soft transition-colors">
+            Cart
+          </span>
+          <span class="relative grid place-items-center w-11 h-11 rounded-full bg-white border-[3px] border-ink">
+            <Icon name="lucide:shopping-bag" size="16" />
+            <span v-if="count" class="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-ink text-white text-[10px] font-semibold grid place-items-center">
+              {{ count }}
+            </span>
+          </span>
+        </button>
+
+        <NuxtLink
+          :to="loggedIn ? '/account' : '/login'"
+          class="icon-btn overflow-hidden"
+          :aria-label="loggedIn ? 'My account' : 'Sign in'"
+        >
+          <img v-if="user?.image" :src="user.image" alt="" class="w-full h-full object-cover bg-white" />
+          <Icon v-else name="lucide:user-round" size="18" />
+        </NuxtLink>
+      </div>
     </nav>
 
-    <!-- Mobile Menu -->
-    <div 
-      v-if="isMobileMenuOpen" 
-      class="lg:hidden border-t bg-white shadow-lg"
-    >
-      <div class="container py-4">
-        <!-- Mobile Search -->
-        <div class="mb-6">
-          <RecipeSearch />
-        </div>
-        
-        <!-- Mobile Navigation Links -->
-        <ul class="space-y-4">
-          <li>
-            <NuxtLink 
-              to="/" 
-              @click="closeMobileMenu"
-              class="block text-lg font-medium text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path === '/' }"
-            >
-              Home
+    <!-- Slide-out menu -->
+    <Teleport to="body">
+      <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" enter-active-class="transition-opacity duration-300" leave-active-class="transition-opacity duration-200">
+        <div v-if="menuOpen" class="fixed inset-0 z-50 bg-black/40" @click="menuOpen = false" />
+      </Transition>
+      <Transition enter-from-class="-translate-x-full" leave-to-class="-translate-x-full" enter-active-class="transition-transform duration-300 ease-out" leave-active-class="transition-transform duration-200 ease-in">
+        <aside v-if="menuOpen" class="fixed inset-y-0 left-0 z-50 w-full max-w-sm bg-paper flex flex-col" aria-label="Menu">
+          <div class="flex items-center justify-between h-20 px-6">
+            <AppLogo :size="32" />
+            <button class="p-2 -mr-2 hover:opacity-70" aria-label="Close menu" @click="menuOpen = false">
+              <Icon name="lucide:x" size="24" />
+            </button>
+          </div>
+          <div class="px-6 pb-6">
+            <SearchField />
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 space-y-10">
+            <div v-for="group in menuGroups" :key="group.title">
+              <p class="eyebrow mb-4">{{ group.title }}</p>
+              <ul class="space-y-3">
+                <li v-for="link in group.links" :key="link.to">
+                  <NuxtLink :to="link.to" class="display text-3xl hover:opacity-60 transition-opacity">{{ link.label }}</NuxtLink>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="p-6 border-t border-line text-sm">
+            <NuxtLink v-if="loggedIn" to="/account" class="flex items-center gap-2 hover:opacity-70">
+              <Icon name="lucide:user-round" size="16" /> {{ user?.firstName }} {{ user?.lastName }}
             </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink 
-              to="/recipes" 
-              @click="closeMobileMenu"
-              class="block text-lg font-medium text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path.startsWith('/recipes') }"
-            >
-              Recipes
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink 
-              to="/community" 
-              @click="closeMobileMenu"
-              class="block text-lg font-medium text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path === '/community' }"
-            >
-              Community
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink 
-              to="/about" 
-              @click="closeMobileMenu"
-              class="block text-lg font-medium text-gray-700 hover:text-dodgeroll-gold transition-colors duration-200"
-              :class="{ 'text-dodgeroll-gold': $route.path === '/about' }"
-            >
-              About
-            </NuxtLink>
-          </li>
-        </ul>
-      </div>
-    </div>
+            <div v-else class="flex gap-6">
+              <NuxtLink to="/login" class="hover:opacity-70">Sign in</NuxtLink>
+              <NuxtLink to="/register" class="hover:opacity-70">Create account</NuxtLink>
+            </div>
+          </div>
+        </aside>
+      </Transition>
+    </Teleport>
   </header>
 </template>
-
-<script setup>
-const isMobileMenuOpen = ref(false)
-
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
-
-const closeMobileMenu = () => {
-  isMobileMenuOpen.value = false
-}
-
-// Close mobile menu when route changes
-watch(() => useRoute().path, () => {
-  closeMobileMenu()
-})
-</script>
-
-
-
-<style  scoped>
-
-</style>

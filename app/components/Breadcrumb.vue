@@ -1,34 +1,16 @@
+<script setup lang="ts">
+defineProps<{ items: { label: string; to?: string }[] }>()
+</script>
+
 <template>
-  <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-8">
-    <NuxtLink 
-      to="/" 
-      class="hover:text-dodgeroll-gold transition-colors duration-200 flex items-center gap-1"
-    >
-      <Icon name="mdi:home" size="16" />
-      Home
-    </NuxtLink>
-    
-    <Icon name="mdi:chevron-right" size="16" class="text-gray-400" />
-    
-    <NuxtLink 
-      to="/recipes" 
-      class="hover:text-dodgeroll-gold transition-colors duration-200"
-    >
-      Recipes
-    </NuxtLink>
-    
-    <template v-if="recipeName">
-      <Icon name="mdi:chevron-right" size="16" class="text-gray-400" />
-      <span class="text-gray-900 font-medium truncate">{{ recipeName }}</span>
-    </template>
+  <nav aria-label="Breadcrumb" class="text-xs text-muted">
+    <ol class="flex flex-wrap items-center gap-1.5">
+      <li><NuxtLink to="/" class="hover:text-ink transition-colors">Home</NuxtLink></li>
+      <li v-for="item in items" :key="item.label" class="flex items-center gap-1.5">
+        <span aria-hidden="true">/</span>
+        <NuxtLink v-if="item.to" :to="item.to" class="hover:text-ink transition-colors">{{ item.label }}</NuxtLink>
+        <span v-else class="text-ink truncate max-w-[16rem]" aria-current="page">{{ item.label }}</span>
+      </li>
+    </ol>
   </nav>
 </template>
-
-<script setup>
-defineProps({
-  recipeName: {
-    type: String,
-    default: ''
-  }
-})
-</script>

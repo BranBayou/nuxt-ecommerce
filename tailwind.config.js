@@ -1,60 +1,44 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{vue,js,ts}", "./components/**/*.{vue,js,ts}", "./layouts/**/*.{vue,js,ts}", "./pages/**/*.{vue,js,ts}", "./plugins/**/*.{js,ts}", "./nuxt.config.{js,ts}"],
-  plugins: [
-    require('@tailwindcss/line-clamp'),
-  ],
+  content: ["./app/**/*.{vue,js,ts}", "./nuxt.config.{js,ts}"],
   theme: {
     extend: {
       colors: {
-        "dodgeroll-gold": {
-          50: "#fff9eb",
-          100: "#fdecc8",
-          200: "#fbd88c",
-          300: "#f9bd50",
-          400: "#f79f1a",
-          500: "#f1820f",
-          600: "#d65f09",
-          700: "#b13f0c",
-          800: "#903210",
-          900: "#762911",
-          950: "#441204",
-        },
-        "dodgeroll-gold": "#F79F1A",
-        "apple-green": "#046E1B",
-        "dire-wolf": "#292727",
+        ink: "#000000",
+        "ink-soft": "#1F1F1F",
+        paper: "#EBEBEB",
+        tile: "#F4F4F6",
+        field: "#D9D9D9",
+        line: "#D3D3D3",
+        muted: "#5E5E5E",
+        accent: "#000E8A",
+        sale: "#B42318",
+      },
+      fontFamily: {
+        sans: ["Archivo", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      letterSpacing: {
+        label: "0.04em",
       },
       animation: {
-        'fade-in-up': 'fadeInUp 0.6s ease-out',
+        'fade-in-up': 'fadeInUp 0.5s ease-out both',
         'shimmer': 'shimmer 1.5s infinite',
       },
       keyframes: {
         fadeInUp: {
-          'from': {
-            opacity: '0',
-            transform: 'translateY(30px)',
-          },
-          'to': {
-            opacity: '1',
-            transform: 'translateY(0)',
-          },
+          from: { opacity: '0', transform: 'translateY(16px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
         },
         shimmer: {
-          '0%': {
-            'background-position': '-200px 0',
-          },
-          '100%': {
-            'background-position': 'calc(200px + 100%) 0',
-          },
+          '0%': { 'background-position': '-200px 0' },
+          '100%': { 'background-position': 'calc(200px + 100%) 0' },
         },
       },
     },
-    fontFamily: {
-      Montserrat: "Montserrat, sans-serif",
-    },
     container: {
       center: true,
-      padding: "2rem",
+      padding: { DEFAULT: "1rem", sm: "1.5rem", lg: "2.5rem" },
+      screens: { "2xl": "1440px" },
     },
   },
 };
